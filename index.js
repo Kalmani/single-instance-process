@@ -1,51 +1,44 @@
 'use strict';
 
+const os    = require('os');
 const http  = require('http');
 const path  = require('path');
 
-const debug = require('debug');
 
-const parseArgs = require('nyks/process/parseArgs');
-const defer     = require('nyks/promise/defer');
-const drain     = require('nyks/stream/drain');
+module.exports = function singleinstanceprocess(socket_name) {
 
-const logger = {
-  info  : debug('sentinel:info'),
-  error : debug('sentinel:error')
-};
+  const pipeDir = process.platform == 'win32' ? '\\\\?\\pipe' : os.tmpdir();
+  const socketPath = path.join(pipeDir, socket_name);
 
-module.exports = function SingleInstanceProcess(socket_name) {
-  let socketPath = path.join('\\\\?\\pipe', socket_name);
-  let server     = http.createServer(async (req, res) => {
-    let data    = await drain(req);
-    let payload = JSON.parse(data);
+  const server     = http.createServer(async (req, res) => {
+    const body = [];
+    req.on('data', buf => body.push(buf));
+    await new Promise((resolve, reject) => (req.on('end', resolve), req.on('error', reject)));
+
+    const payload = JSON.parse(Buffer.concat(body));
 
     process.emit('openArgs', payload);
-
     res.end();
   });
 
-  let defered = defer();
-
   server.unref();
-  server.on('error', async (err) => {
-    if(err.code === 'EADDRINUSE') {
-      let req  = http.request({socketPath, method : 'POST'});
-      let args = parseArgs(process.argv);
 
-      req.end(JSON.stringify(args));
+  return new Promise((resolve, reject) => {
 
-      defered.resolve(false);
-      logger.error('Sentinel server already running - can\'t run more than one instance');
-    } else {
-      logger.error(err);
-    }
+    server.on('error', async (err) => {
+      if(err.code === 'EADDRINUSE') {
+        const req  = http.request({socketPath, method : 'POST'});
+        req.end(JSON.stringify(process.argv));
+        resolve(false);
+
+      } else {
+        reject(err);
+      }
+    });
+
+    server.listen(socketPath, () => {
+      resolve(true);
+    });
   });
-
-  server.listen(socketPath, () => {
-    defered.resolve(true);
-    logger.info('Sentinel server running');
-  });
-
-  return defered;
 };
+
