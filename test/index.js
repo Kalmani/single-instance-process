@@ -24,6 +24,5 @@ describe('Testing single-instance-process', () => {
     } catch(err) {
       expect(err.code).to.eql('EACCES');
     }
-
   });
 });
