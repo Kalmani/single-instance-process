@@ -17,4 +17,13 @@ describe('Testing single-instance-process', () => {
 
     expect(isServer).to.be(false);
   });
+
+  it('should fail to create or connect to server', async () => {
+    try {
+      await sip('');
+    } catch(err) {
+      expect(err.code).to.eql('EACCES');
+    }
+
+  });
 });
