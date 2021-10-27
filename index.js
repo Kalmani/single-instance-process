@@ -25,7 +25,6 @@ module.exports = function singleinstanceprocess(socket_name) {
   return new Promise((resolve, reject) => {
     server.on('error', async (err) => {
       if(err.code === 'EADDRINUSE') {
-        console.log('this is in use ?');
         const req  = http.request({socketPath, method : 'POST'});
 
         req.end(JSON.stringify(process.argv));
