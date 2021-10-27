@@ -1,6 +1,6 @@
 {
   "root": true,
   "extends": [
-    "plugin:ivs/node"
+    "plugin:ivs/node-stage3"
   ]
 }
