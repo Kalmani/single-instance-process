@@ -19,14 +19,14 @@ describe('Testing single-instance-process', () => {
   });
 
   it('should fail to create or connect to server', async () => {
-    let catched = '';
+    var catched = '';
 
     try {
       await sip('');
     } catch(err) {
       catched = err.code;
-    } finally {
-      expect(catched).to.not.be.empty();
     }
+
+    expect(catched).to.not.be.empty();
   });
 });
