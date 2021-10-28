@@ -18,6 +18,20 @@ describe('Testing single-instance-process', () => {
     expect(isServer).to.be(false);
   });
 
+  it('should send param to main server', (done) => {
+    let processArg = '--jambon=melon';
+    process.argv.push(processArg);
+
+    process.on('openArgs', (args) => {
+      let sentArg = args[4];
+
+      expect(sentArg).to.eql(processArg);
+      done();
+    });
+
+    sip(PIPE_KEY);
+  });
+
   /*it('should fail to create or connect to server', async () => {
     var catched = null;
 
