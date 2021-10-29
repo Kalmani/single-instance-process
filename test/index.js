@@ -20,6 +20,7 @@ describe('Testing single-instance-process', () => {
 
   it('should send param to main server', (done) => {
     let processArg = '--jambon=melon';
+
     process.argv.push(processArg);
 
     process.on('openArgs', (args) => {
