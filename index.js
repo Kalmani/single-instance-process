@@ -15,7 +15,7 @@ module.exports = function singleinstanceprocess(socket_name) {
     await new Promise((resolve, reject) => (req.on('end', resolve), req.on('error', reject)));
 
     const payload = JSON.parse(Buffer.concat(body));
-
+    console.log('ici', payload);
     process.emit('openArgs', payload);
     res.end();
   });
