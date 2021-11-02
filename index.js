@@ -27,8 +27,7 @@ module.exports = function singleinstanceprocess(socket_name) {
       if(err.code === 'EADDRINUSE') {
         const req  = http.request({socketPath, method : 'POST'});
 
-        req.end(JSON.stringify(process.argv));
-        resolve(false);
+        req.end(JSON.stringify(process.argv), () => resolve(false));
       } else {
         reject(err);
       }
