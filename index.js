@@ -4,7 +4,7 @@ const os    = require('os');
 const http  = require('http');
 const path  = require('path');
 
-module.exports = function singleinstanceprocess(socket_name) {
+module.exports = function singleinstanceprocess(socket_name, callback) {
   const pipeDir    = process.platform == 'win32' ? '\\\\?\\pipe' : os.tmpdir();
   const socketPath = path.join(pipeDir, socket_name);
   const server     = http.createServer(async (req, res) => {
@@ -16,7 +16,9 @@ module.exports = function singleinstanceprocess(socket_name) {
 
     const payload = JSON.parse(Buffer.concat(body));
 
-    process.emit('openArgs', payload);
+    if(callback)
+      callback(payload);
+
     res.end();
   });
 
